@@ -8,15 +8,14 @@ Debian 是一个社区驱动的 Linux 发行版，1993 年由 Ian Murdock 发起
 lspci | grep -iE "vga|3d"
 记住返回的硬件信息
 
-二、启用闭源源
-推荐直接添加清华源
+二、启用闭源源,推荐直接添加清华源
 #教程
 https://mirrors.tuna.tsinghua.edu.cn/help/debian/
 
 三、禁用 nouveau（开源驱动）
 #写 blacklist
 echo -e "blacklist nouveau\noptions nouveau modeset=0" | sudo tee /etc/modprobe.d/blacklist-nouveau.conf
-#重建 initramfs 并重启
+#重建 initramfs
 sudo update-initramfs -u
 #重启
 sudo reboot
