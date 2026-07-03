@@ -1,0 +1,56 @@
+Debian 是一个社区驱动的 Linux 发行版，1993 年由 Ian Murdock 发起，名字取自他本人和当时女友 Debra 的组合（Deb + ian）。它不以商业公司背书，靠一套成熟的治理规则和发布流程活着，至今仍是很多发行版的"上游祖宗"——Ubuntu、Linux Mint、Pop!_OS 都源自它。
+
+下面我们正式开始：
+
+一、确认确认硬件
+
+#查看显卡信息
+lspci | grep -iE "vga|3d"
+记住返回的硬件信息
+
+二、启用闭源源
+推荐直接添加清华源
+#教程
+https://mirrors.tuna.tsinghua.edu.cn/help/debian/
+
+三、禁用 nouveau（开源驱动）
+#写 blacklist
+echo -e "blacklist nouveau\noptions nouveau modeset=0" | sudo tee /etc/modprobe.d/blacklist-nouveau.conf
+#重建 initramfs 并重启
+sudo update-initramfs -u
+#重启
+sudo reboot
+#重启后确认 nouveau 没加载，无输出 = 禁用成功 ✅
+lsmod | grep nouveau
+
+四、装 headers + DKMS 前置
+#💡 linux-headers-amd64是元包，以后 apt upgrade升内核小版本时 headers 自动跟，DKMS 就能自动给新内核重编 nvidia，避免"模块人间蒸发"
+sudo apt install linux-headers-$(uname -r) linux-headers-amd64 dkms
+
+五、装 NVIDIA 闭源驱动 + 固件
+#安装debian官方提供的英伟达探测工具
+sudo apt install nvidia-detect
+#探测，记住返回信息中的包名
+nvidia-detect
+#安装英伟达驱动
+sudo apt install 包名
+#装好后重启
+sudo  reboot
+
+六、验证安装信息
+# 驱动层活没活，出 GPU 表格 + 版本号 = ✅
+nvidia-smi
+# 模块整串起来没，应有 nvidia、nvidia_drm、nvidia_modeset、nvidia_uvm，无 nouveau
+lsmod | grep -E "^nvidia "
+# dGPU 谁在接管,看到 Kernel driver in use: nvidia= ✅
+lspci -k | grep -A3 "01:00.0"
+#如果都正常，恭喜你，安装成功！
+
+七、翻车速查
+nvidia-smi通信失败----------检测有没有正确安装对应的包，有没有禁用开源驱动
+
+八、Q&A
+设置显卡信息显示 llvmpipe----------Wayland下正常现象
+为什么不能用官方.run文件---------- 会架空 apt，内核一升级就黑屏
+
+九、谢谢你看到这里
