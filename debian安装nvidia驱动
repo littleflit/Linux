@@ -34,7 +34,7 @@ nvidia-detect
 #安装英伟达驱动
 sudo apt install 包名
 #装好后重启
-sudo  reboot
+sudo reboot
 
 六、验证安装信息
 # 驱动层活没活，出 GPU 表格 + 版本号 = ✅
